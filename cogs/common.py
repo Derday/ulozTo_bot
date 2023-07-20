@@ -54,6 +54,29 @@ class Common(commands.Cog):
         self.newJson(False, 1)
         self._print('Bot is online')
 
+    @app_commands.command(name='ping', description='Show bot latency and server\'s internet speed')
+    async def ping(self, inter: discord.Interaction):
+        sp = Speedtest()
+        em = discord.Embed()
+        em.title = 'Internet speed'
+        em.color = 0x1a1a41
+        em.add_field(name='Latency', 
+                    value=f'{round(self.bot.latency*1000)} ms')
+        em.add_field(name='Download', 
+                    value='--- Mb/s')
+        em.add_field(name='Upload',
+                    value='--- Mb/s')
+        await inter.response.send_message(embed=em)
+        async with inter.channel.typing():
+            em.set_field_at(1, name='Download', 
+                value=f'{round(sp.download()/1000/1000, 2)} Mb/s')
+            await inter.edit_original_response(embed=em)
+        async with inter.channel.typing():
+                em.set_field_at(2, name='Upload', 
+                            value=f'{round(sp.upload()/1000/1000, 2)} Mb/s')
+                await inter.edit_original_response(embed=em)
+        if self.DEBUG:
+            exit()
 
 async def setup(bot):
     await bot.add_cog(Common(bot))
